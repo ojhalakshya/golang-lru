@@ -444,3 +444,19 @@ func TestCache_EvictionSameKey(t *testing.T) {
 		}
 	})
 }
+
+func TestAddExistingKeyDoesNotEvict(t *testing.T) {
+	evictCount := 0
+	l, _ := New[string, int](5)
+	l.onEvict = func(k string, v int) {
+		evictCount++
+	}
+	l.Add("foo", 1)
+	l.Add("foo", 2)
+	if evictCount != 0 {
+		t.Fatalf("expected no evictions on update, got %d", evictCount)
+	}
+	if v, ok := l.Get("foo"); !ok || v != 2 {
+		t.Fatalf("expected value 2, got %v, %v", v, ok)
+	}
+}
