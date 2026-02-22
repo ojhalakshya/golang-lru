@@ -207,3 +207,18 @@ func TestLRU_Resize(t *testing.T) {
 		t.Errorf("Cache should have contained 2 elements")
 	}
 }
+
+func TestAddExistingKeyDoesNotEvict(t *testing.T) {
+    evictCount := 0
+    l, _ := NewLRU[string, int](5, func(k string, v int) {
+        evictCount++
+    })
+    l.Add("foo", 1)
+    l.Add("foo", 2) // same key, new value — should NOT evict
+    if evictCount != 0 {
+        t.Fatalf("expected no evictions on update, got %d", evictCount)
+    }
+    if v, ok := l.Get("foo"); !ok || v != 2 {
+        t.Fatalf("expected value 2 after update, got %v ok=%v", v, ok)
+    }
+}
