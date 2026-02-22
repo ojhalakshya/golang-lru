@@ -51,9 +51,10 @@ func (c *LRU[K, V]) Add(key K, value V) (evicted bool) {
 	// Check for existing item
 	if ent, ok := c.items[key]; ok {
 		c.evictList.MoveToFront(ent)
-		if c.onEvict != nil {
-			c.onEvict(key, ent.Value)
-		}
+		//! Change 1: Removing `onEvict` callback as this is an inplace write.
+		// if c.onEvict != nil {
+		// 	c.onEvict(key, ent.Value)
+		// }
 		ent.Value = value
 		return false
 	}
